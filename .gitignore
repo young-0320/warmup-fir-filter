@@ -39,3 +39,29 @@
 
 # debug information files
 *.dwo
+
+
+# 앞서 설정한 ws 디스크 연결용 심볼릭 링크 및 빌드 폴더 제외
+**/build/
+
+# Verilator 및 시뮬레이션 결과물 (obj_dir은 Verilator의 기본 빌드 폴더)
+obj_dir/
+*.vcd
+*.log
+
+
+# 파이썬 실행 시 생성되는 캐시 폴더
+__pycache__/
+.pytest_cache/
+*.pyc
+
+
+# VS Code 개인 설정 (협업 시 각자의 설정이 꼬이지 않게 함)
+.vscode/
+# 가상환경 폴더
+.venv/
+venv/
+
+# === OS 관련 임시 파일 ===
+.DS_Store
+Thumbs.db
