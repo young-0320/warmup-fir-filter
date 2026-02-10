@@ -40,9 +40,17 @@
 # debug information files
 *.dwo
 
-
-# 앞서 설정한 ws 디스크 연결용 심볼릭 링크 및 빌드 폴더 제외
+# --- CMake & Ninja Specific ---
+build/           # 빌드 결과물 전체 
 **/build/
+build/
+.ninja_deps
+.ninja_log
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+install/
 
 # Verilator 및 시뮬레이션 결과물 (obj_dir은 Verilator의 기본 빌드 폴더)
 obj_dir/
