@@ -1,0 +1,39 @@
+  {
+    "version": 3,
+    "configurePresets": [
+      {
+        "name": "default-build",
+        "displayName": "Default Build (Project Root)",
+        "binaryDir": "${sourceDir}/build",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug",
+          "BUILD_FIR_TESTS": "ON"
+        }
+      },
+      {
+        "name": "fir-1d-custom",
+        "displayName": "1D FIR Filter (Sub-folder Build)",
+        "binaryDir": "${sourceDir}/01_fir_1d/sim/build",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug",
+          "BUILD_FIR_TESTS": "ON"
+        }
+      }
+    ],
+    "buildPresets": [
+      {
+        "name": "build-all-default",
+        "configurePreset": "default-build"
+      },
+      {
+        "name": "build-test-fir-1d-default",
+        "configurePreset": "default-build",
+        "targets": ["test_fir_1d"]
+      },
+      {
+        "name": "build-test-fir-1d-custom",
+        "configurePreset": "fir-1d-custom",
+        "targets": ["test_fir_1d"]
+      }
+    ]
+  }

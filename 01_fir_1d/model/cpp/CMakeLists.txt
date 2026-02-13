@@ -1,10 +1,14 @@
-# cmake 버전 설정
-cmake_minimum_required(VERSION 3.10)
+# model/cpp/CMakeList
+# model/cpp 파일을 라이브러리화
+add_library(fir_1d_ref STATIC fir_1d_ref.cpp)
 
-# project( [프로젝트 이름] [진행 단계] [사용 언어 현재는 C와 CPP] )
-project(fir_filter VERSION 0.1.0 LANGUAGES C CXX)
+target_include_directories(fir_1d_ref
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-# add_executable( [실행 파일의 이름] [소스 코드들(.cpp)] )
-add_executable(fir_1d fir_1d_ref.cpp)
+# 범용 라이브러리를 fir_1d_ref와 연결
+target_link_libraries(fir_1d_ref PUBLIC mycomplex)
 
-target_link_libraries(fir_1d PRIVATE mycomplex)
+
+
