@@ -3,7 +3,7 @@
 def fir_1d_golden(x : list, h : list)->list:
     N = len(x)      # 입력 x의 길이
     L = len(h)      # 필터 h의 길이
-    # M = L - 1       # 차수
+    # M = L - 1     # 차수
     Ny = N + L - 1  # 출력 신호 길이 
 
     y = [0.0] * Ny

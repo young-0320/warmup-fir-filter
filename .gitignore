@@ -70,7 +70,7 @@ __pycache__/
 .venv/
 venv/
 
-docs/ 
+docs/assets
 
 # === OS 관련 임시 파일 ===
 .DS_Store
