@@ -1,77 +1,105 @@
-# Prerequisites
+# ==============================================================================
+# 1. C/C++ & Build Artifacts (Comprehensive)
+# ==============================================================================
+# 전처리기 및 의존성 파일 (Make/CMake가 생성)
 *.d
+*.i
+*.ist
 
-# Compiled Object files
-*.slo
-*.lo
+# 컴파일된 Object 파일 (Source -> Binary 중간 단계)
 *.o
 *.obj
+*.lo
+*.slo
 
-# Precompiled Headers
+# 미리 컴파일된 헤더 (빌드 속도 최적화 파일)
 *.gch
 *.pch
 
-# Linker files
+# 링커 및 디버깅 파일
 *.ilk
-
-# Debugger Files
 *.pdb
+*.map
 
-# Compiled Dynamic libraries
+# 라이브러리 (Static & Dynamic)
+*.a
+*.lib
 *.so
+*.so.*
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+# 실행 파일 (Binaries)
 *.exe
 *.out
 *.app
 
-# debug information files
-*.dwo
-
-# --- CMake & Ninja Specific ---
-build/           # 빌드 결과물 전체 
-**/build/
+# CMake & Ninja 
+# build/ 폴더는 통째로 무시 
 build/
-.ninja_deps
-.ninja_log
+**/build/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 compile_commands.json
+.ninja_deps
+.ninja_log
 install/
 
-# Verilator 및 시뮬레이션 결과물 (obj_dir은 Verilator의 기본 빌드 폴더)
+# ==============================================================================
+# 2. Fortran (Scientific Computing) - 요청대로 유지
+# ==============================================================================
+# 모듈 파일
+*.mod
+*.smod
+*.fmod
+
+# ==============================================================================
+# 3. Hardware / FPGA (Verilog, Verilator, Vivado)
+# ==============================================================================
+# Verilator 빌드 결과물
 obj_dir/
-*.vcd
+
+# 시뮬레이션 파형 및 로그 (용량 큼)
 *.log
+*.vcd
+*.wdb
+*.fsdb
 
+# Vivado 프로젝트 부산물 (루트 폴더 오염 방지)
+*.jou
+*.pb
+*.str
+.Xil/
+xsim.dir/
 
-# 파이썬 실행 시 생성되는 캐시 폴더
+# ==============================================================================
+# 4. Python (Simulation & Verification)
+# ==============================================================================
+# 바이트코드 및 캐시
 __pycache__/
-.pytest_cache/
 *.pyc
+.pytest_cache/
 
-
-# VS Code 개인 설정 (협업 시 각자의 설정이 꼬이지 않게 함)
-.vscode/
-# 가상환경 폴더
+# 가상환경
 .venv/
 venv/
+env/
 
+# ==============================================================================
+# 5. Project Specific (사용자 정의)
+# ==============================================================================
+# 시뮬레이션 결과 데이터 (Git 제외, 로컬 확인용)
+**/sim/temp/
+**/sim/data/
+**/sim/work/
+
+# 문서 자산 
 **/docs/assets/
 
-# === OS 관련 임시 파일 ===
+# ==============================================================================
+# 6. IDE & OS Misc
+# ==============================================================================
+.vscode/
 .DS_Store
 Thumbs.db
