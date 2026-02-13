@@ -1,52 +1,84 @@
-# FIR 1D Golden Specification
 
-## 1. 목적
-본 문서는 `model/python/fir_1d_ref.py`의 `fir_1d_golden(x, h)` 동작을 골든 레퍼런스 스펙으로 정의한다.
-이 스펙은 RTL/CPP 구현 검증 시 정답(reference output) 생성 기준으로 사용한다.
+# FIR 1D Golden Specification (Dual Model)
 
-## 2. 함수 시그니처
-- 함수명: `fir_1d_golden`
-- 입력:
-  - `x`: 입력 시퀀스 (길이 `N`)
-  - `h`: FIR 탭 계수 시퀀스 (길이 `L`)
-- 출력:
-  - `y`: 출력 시퀀스 (길이 `Ny = N + L - 1`)
+## 1. 개요 및 페르소나 (Persona)
 
-## 3. 수학적 정의
-출력 `y[n]`은 다음과 같이 정의한다.
+* **목적** : 본 문서는 **2D 이미지 필터링 가속기**의 라인 버퍼(Line Buffer) 및 연산 코어 설계를 위한 1차원 FIR 필터의 동작을 정의한다.
+* **적용 분야** : Grayscale 이미지(0~255)의 엣지 검출(Edge Detection) 및 노이즈 제거(Smoothing).
+* **검증 전략** :
 
-`y[n] = Σ_{k=0}^{L-1} h[k] * x[n-k]`, 단 `0 <= n-k < N` 인 항만 유효
+1. **Ideal Model (Float-64)** : 알고리즘의 논리적 정합성(Zero-padding, Sliding Window) 확인.
+2. **Hardware Model (Fixed-8)** : RTL 구현과 비트 단위(Bit-exact)로 일치해야 하는  **Golden Reference** .
 
-즉, 유효 인덱스 범위를 벗어나는 `x[n-k]`는 0으로 간주한 선형 컨볼루션(linear convolution)이다.
+---
 
-## 4. 인덱스 및 경계 규칙
-- `n` 범위: `0` 부터 `Ny-1` 까지
-- `k` 범위: `0` 부터 `L-1` 까지
-- 누산 조건:
-  - `0 <= n-k < N` 이면 `result += h[k] * x[n-k]`
-  - 그 외는 누산하지 않음
+## 2. 함수 1: Ideal Floating-Point Model (논리 검증용)
 
-## 5. 알고리즘 절차 (레퍼런스 동작)
-1. `N = len(x)`, `L = len(h)`, `Ny = N + L - 1` 계산
-2. `y`를 길이 `Ny`의 0.0 배열로 초기화
-3. 각 `n`에 대해:
-   - `result = 0.0`
-   - 각 `k`에 대해 경계 조건을 만족하면 `h[k] * x[n-k]` 누산
-   - `y[n] = result`
-4. `y` 반환
+하드웨어 제약 없이 순수 수학적 알고리즘이 올바르게 동작하는지 확인하는 기준이다.
 
-## 6. 동치성 요구사항 (CPP/RTL 검증 기준)
-CPP/RTL 구현은 아래 조건을 만족해야 한다.
-- 출력 길이: 정확히 `N + L - 1`
-- 탭 순서: `h[0]`가 가장 최근 입력 `x[n]`에 곱해지는 구조 (`x[n-k]`)
-- 경계 처리: 유효 범위 외 입력은 0 패딩과 동등한 결과
-- 출력 값: 동일 입력 `x`, `h`에 대해 본 스펙과 수치적으로 일치
+### 2.1 함수 시그니처
 
-## 7. 비범위 항목
-아래는 본 골든 스펙의 범위 밖이다.
-- 입력 타입/빈 입력/예외 처리 정책
-- 고정소수점 양자화/포화/반올림
-- 성능 최적화(루프 언롤, SIMD, 파이프라이닝)
+* **함수명** : `fir_1d_idel`
+* **입력** :
+* `x`: `list[float]` (정규화된 픽셀 값, 범위 **$0.0 \sim 255.0$**)
+* `h`: `list[float]` (실수형 필터 계수, 예: **$1/9, -1.0$**)
+* **출력** :
+* `y`: `list[float]` (제한 없는 실수형 결과)
 
-## 8. 원본 레퍼런스
-- `model/python/fir_1d_ref.py`
+### 2.2 동작 사양
+
+* **데이터 범위** : 제한 없음 (음수, 소수점 모두 유지).
+* **경계 처리 (Padding)** : `Zero-padding`을 적용하여 입력 배열 `x`의 범위를 벗어나는 인덱스는 `0.0`으로 계산한다.
+* **용도** : "필터가 영상의 엣지 부분에서 튕기지 않고 계산을 수행하는가?"를 검증.
+
+---
+
+## 3. 함수 2: Hardware Fixed-Point Model (RTL 검증용)
+
+**Verilog HDL로 구현될 회로의 동작을 소프트웨어로 완벽하게 흉내 낸(Bit-true) 모델이다.** 이 함수의 출력값은 RTL 시뮬레이션 파형과 100% 일치해야 한다.
+
+### 3.1 함수 시그니처
+
+* **함수명** : `fir_1d_fixed_golden`
+* **입력** :
+* `x`: `list[int]` ( **8-bit Unsigned Integer** , 0~255)
+* `h`: `list[float]` (내부에서 정수로 양자화됨)
+* **파라미터 (Hardware Constraints)** :
+* `data_bits`: **8** (Pixel Depth)
+* `frac_bits`: **7** (Coefficient Precision, **$Q1.7$**)
+* `acc_bits`: **16** (Accumulator Width)
+* **출력** :
+* `y_out`: `list[int]` ( **8-bit Unsigned Integer** , 0~255)
+
+### 3.2 데이터 경로 및 제약 사항 (Data Path Specification)
+
+#### A. 입력 데이터 규격 (Input Constraint)
+
+* 모든 입력 `x`는 `uint8` 처리된다. (**$0 \le x \le 255$**)
+* 음수 픽셀이나 255를 초과하는 입력은 허용하지 않는다.
+
+#### B. 계수 양자화 (Coefficient Quantization)
+
+* 실수 계수 `h`는 다음 공식을 통해 정수로 변환된다.
+  * **$H_{fixed} = \text{round}(h \times 2^{\text{frac\_bits}})$**
+  * 예: **$1/9 \approx 0.111 \xrightarrow{\times 128} 14$**
+
+#### C. 연산 및 누적 (MAC & Accumulation)
+
+* **곱셈** : `8-bit` 입력 **$\times$** `8-bit` 계수 **$\rightarrow$** `16-bit` 결과 생성.
+* **누적 (Accumulator)** :
+* 누산기 폭은 `acc_bits`(16-bit)로 제한된다.
+* **Overflow Policy** : 누산 중 `16-bit` 범위를 초과하는 경우, 상위 비트는 버려진다( **Wrap-around** ).
+  * *설계 의도: 하드웨어 비용 절감 및 2D 필터의 작은 커널 크기(**$3 \times 3$**) 감안.*
+
+#### D. 출력 보정 (Post-Processing)
+
+연산이 끝난 `acc` 값은 다음 3단계 후처리를 거쳐 최종 8비트로 변환된다.
+
+1. **Re-scaling** : 고정소수점 복원을 위해 `frac_bits`만큼 우측 시프트한다. (`acc >> 7`)
+2. **Saturation (Clamping)** :
+
+* 결과가 **음수**인 경우(샤프닝 필터 등) **$\rightarrow$** **0**으로 고정.
+* 결과가 **255를 초과**하는 경우 **$\rightarrow$** **255**로 고정.
+
+1. **Truncation** : 소수점 이하는 버림 처리한다.

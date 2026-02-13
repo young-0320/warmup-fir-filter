@@ -34,7 +34,7 @@ double Fir1D::process_sample(double x_n) {
 
 void Fir1D::reset() { reg_.assign(h_.size(), 0.0); }
 
-std::vector<double> Fir1D::fir_1d_golden(const std::vector<double>& x,
+std::vector<double> Fir1D::fir_1d_idel(const std::vector<double>& x,
                                          const std::vector<double>& h) {
   const std::size_t n_len = x.size();  // 입력 길이
   const std::size_t l_len = h.size();  // 계수 길이

@@ -1,4 +1,4 @@
-// FIR Filter 1D Golden Model using C++
+// FIR Filter 1D idel Model using C++
 // fir_1d_ref.h
 
 #pragma once
@@ -17,8 +17,8 @@ class Fir1D {
   double process_sample(double x_n);
   void reset();
 
-  // Block-based golden model equivalent to python fir_1d_golden(x, h).
-  static std::vector<double> fir_1d_golden(const std::vector<double>& x,
+  // Block-based idel model equivalent to python fir_1d_idel(x, h).
+  static std::vector<double> fir_1d_idel(const std::vector<double>& x,
                                            const std::vector<double>& h);
 
  private:

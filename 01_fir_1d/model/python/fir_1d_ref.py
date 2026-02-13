@@ -1,6 +1,6 @@
-# FIR  Filter 1D Golden Model
+# FIR  Filter 1D Idel Model
 
-def fir_1d_golden(x : list, h : list)->list:
+def fir_1d_idel(x : list, h : list)->list:
     N = len(x)      # 입력 x의 길이
     L = len(h)      # 필터 h의 길이
     # M = L - 1     # 차수
