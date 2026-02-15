@@ -1,0 +1,22 @@
+[project]
+name = "10-warmup-fir-filter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "numpy>=2.4.2",
+    "pytest>=9.0.2",
+]
+
+[build-system]
+
+requires = ["setuptools>=61.0"]
+
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# 현재 폴더(.)에서 아래 패턴에 맞는 폴더를 패키지로 인식해라
+where = ["."]
+include = ["fir_1d*", "fir_2d*", "lib*"]  
+namespaces = false

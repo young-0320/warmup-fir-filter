@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: 10-warmup-fir-filter
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=2.4.2
+Requires-Dist: pytest>=9.0.2
+Dynamic: license-file

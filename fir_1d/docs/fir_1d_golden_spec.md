@@ -5,6 +5,7 @@
 - 목적: 본 문서는 2D 이미지 필터링 가속기의 전단 1D FIR 모델 동작을 정의한다.
 - 적용 분야: Grayscale 이미지(0~255) 기반 노이즈 제거, 엣지 검출, 샤프닝.
 - 검증 전략:
+
 1. Ideal Model (float): 알고리즘 정합성(Zero-padding, Sliding Window) 확인.
 2. Fixed Model (bit-true): RTL과 비트 단위 일치 검증.
 
@@ -30,7 +31,7 @@
 
 ---
 
-## 3. 함수 2: Fixed-Point Golden Model
+### 3. 함수 2: Fixed-Point Golden Model
 
 ### 3.1 함수 시그니처
 

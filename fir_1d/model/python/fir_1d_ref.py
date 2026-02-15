@@ -1,5 +1,5 @@
 # FIR  Filter 1D Idel Model
-
+# 64bits 부동소수점 : 부호(1) + 지수(11) + 가수(52)
 def fir_1d_ideal(x : list[int], h : list[float])->list:
     N = len(x)      # 입력 x의 길이
     L = len(h)      # 필터 h의 길이

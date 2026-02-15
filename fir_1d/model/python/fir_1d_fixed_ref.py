@@ -46,7 +46,7 @@ def fir_1d_fixed_golden(
                 f"(coeff_bits={coeff_bits}, frac_bits={frac_bits})"
             )
 
-    # 3. h 실수 원소 -> 고정소수점 정수 변환
+    # 3. h 실수 원소 -> 고정소수점 정수 변환(계수 먼저 양자화)
     # 하드웨어에서는 이 정수값들이 레지스터에 저장됩니다.
     h_fixed = []
     for num in h:
