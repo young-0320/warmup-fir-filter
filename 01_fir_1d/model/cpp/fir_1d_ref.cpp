@@ -1,5 +1,5 @@
 // fir_1d_ref.cpp
-// Direct Form I
+// Direct Form I, 64비트 부동소수점
 #include "fir_1d_ref.h"
 
 #include <iostream>

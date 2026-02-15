@@ -1,5 +1,4 @@
-
-# FIR 1D Golden Specification (Dual Model)
+# FIR 1D Golden Specification
 
 ## 1. 개요 및 페르소나 (Persona)
 
@@ -18,9 +17,9 @@
 
 ### 2.1 함수 시그니처
 
-* **함수명** : `fir_1d_idel`
+* **함수명** : `fir_1d_ideal`
 * **입력** :
-* `x`: `list[float]` (정규화된 픽셀 값, 범위 **$0.0 \sim 255.0$**)
+* `x`: `list[int]` (정규화된 픽셀 값, 범위 **$0 \sim 255$**)
 * `h`: `list[float]` (실수형 필터 계수, 예: **$1/9, -1.0$**)
 * **출력** :
 * `y`: `list[float]` (제한 없는 실수형 결과)
@@ -33,7 +32,7 @@
 
 ---
 
-## 3. 함수 2: Hardware Fixed-Point Model (RTL 검증용)
+## 3. 함수 2: Fixed-Point Golden Model
 
 **Verilog HDL로 구현될 회로의 동작을 소프트웨어로 완벽하게 흉내 낸(Bit-true) 모델이다.** 이 함수의 출력값은 RTL 시뮬레이션 파형과 100% 일치해야 한다.
 
