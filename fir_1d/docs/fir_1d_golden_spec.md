@@ -46,7 +46,7 @@
 
 - 함수명: `fir_1d_fixed_golden`
 - 입력:
-- `x: list[int]` (unsigned pixel, 기본 8-bit 기준 0~255)
+- `x: list[int|float]` (입력 샘플)
 - `h: list[float]` (실수 계수, 내부에서 고정소수점 정수로 양자화)
 - 파라미터:
 - `data_bits: int = 8`
@@ -54,35 +54,41 @@
 - `acc_bits: int = 16`
 - `coeff_bits: int = 8`
 - 출력:
-- `y_out: list[int]` (unsigned pixel, 기본 0~255)
+- `y_out: np.ndarray[np.uint8]` (unsigned pixel)
 
 ### 3.2 데이터 경로 및 제약
 
 #### A. 입력 데이터
 
-- `x`는 정수 픽셀 입력을 가정한다.
-- 기본 설정(`data_bits=8`)에서 출력 saturation 범위는 `[0, 255]`.
+- 입력 `x[i]`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
+- `x[i]`는 연산 전 `[0, (1 << data_bits) - 1]` 범위로 saturation(clamp)한다.
+- saturation 후 내부 저장은 `np.uint8` 배열로 변환한다.
+- 출력 saturation 범위도 `[0, (1 << data_bits) - 1]`를 사용한다.
 
 #### B. 계수 무결성 체크 (실수 입력 범위)
 
+- `coeff_bits`는 `{8, 16, 32, 64}`만 허용한다. 그 외 값은 `ValueError`.
 - 계수 정수 범위:
 - `MIN_COEFF = -(1 << (coeff_bits - 1))`
 - `MAX_COEFF = (1 << (coeff_bits - 1)) - 1`
 - 실수 허용 범위:
 - `MIN_COEFF_REAL = MIN_COEFF / (1 << frac_bits)`
 - `MAX_COEFF_REAL = MAX_COEFF / (1 << frac_bits)`
+- 모든 `h[i]`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
 - 모든 `h[i]`는 위 실수 범위를 만족해야 하며, 벗어나면 `ValueError`를 발생시킨다.
 
 #### C. 계수 양자화
 
-- `H_fixed = round(h * 2^frac_bits)`
-- 구현: `quantized = int(round(num * (1 << frac_bits)))`
+- `H_fixed = rint(h * 2^frac_bits)` (원소별 반올림)
+- 이후 `MIN_COEFF ~ MAX_COEFF` 범위로 clip 적용
+- `H_fixed`는 `coeff_bits`에 대응되는 정수 dtype(`int8/int16/int32/int64`)으로 변환
 
 #### D. MAC 및 누산
 
 - 탭 수: `L = len(h_fixed)`
 - 출력 길이: `N` (tail `L-1` 구간은 계산하지 않음)
 - 경계 처리: Zero-padding
+- MAC 곱셈은 `term = int(pixel) * int(h_fixed[k])`로 수행
 - 누산기 overflow 정책: wrap-around
 - 구현 정책: 매 MAC 단계마다 `acc = (acc + term) & ((1 << acc_bits) - 1)`
 - 누산 종료 후 signed 복원:
@@ -92,4 +98,5 @@
 
 1. Re-scaling: `final_val = acc >> frac_bits`
 2. Saturation: `[0, (1 << data_bits) - 1]`로 클램프
-3. 출력 타입: 정수
+3. 반환 타입: `np.ndarray` (`dtype=np.uint8`)
+4. 구현 제약: 최종 반환 dtype이 `uint8`이므로 bit-true 기준 권장 설정은 `data_bits=8`이다.
