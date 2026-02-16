@@ -1,0 +1,177 @@
+{
+  "model": "fir_1d_fixed_golden",
+  "note": "Generated from Python fixed reference model.",
+  "cases": [
+    {
+      "name": "case00_full_scale_impulse",
+      "params": {
+        "frac_bits": 7,
+        "acc_bits": 16,
+        "coeff_bits": 8
+      },
+      "x_input": [
+        255,
+        0,
+        0,
+        0
+      ],
+      "x_preprocessed_u8": [
+        255,
+        0,
+        0,
+        0
+      ],
+      "h_real": [
+        0.1,
+        0.5,
+        0.3,
+        0.1
+      ],
+      "h_quantized_s8": [
+        13,
+        64,
+        38,
+        13
+      ],
+      "y_output_u8": [
+        25,
+        127,
+        75,
+        25
+      ],
+      "files": {
+        "x_mem": "case00_full_scale_impulse_x_u8.mem",
+        "h_mem": "case00_full_scale_impulse_h_s8.mem",
+        "y_mem": "case00_full_scale_impulse_y_u8.mem"
+      }
+    },
+    {
+      "name": "case01_bankers_rounding_and_saturation",
+      "params": {
+        "frac_bits": 7,
+        "acc_bits": 16,
+        "coeff_bits": 8
+      },
+      "x_input": [
+        -1.2,
+        0.5,
+        1.5,
+        2.5,
+        300.1
+      ],
+      "x_preprocessed_u8": [
+        0,
+        0,
+        2,
+        2,
+        255
+      ],
+      "h_real": [
+        0.5
+      ],
+      "h_quantized_s8": [
+        64
+      ],
+      "y_output_u8": [
+        0,
+        0,
+        1,
+        1,
+        127
+      ],
+      "files": {
+        "x_mem": "case01_bankers_rounding_and_saturation_x_u8.mem",
+        "h_mem": "case01_bankers_rounding_and_saturation_h_s8.mem",
+        "y_mem": "case01_bankers_rounding_and_saturation_y_u8.mem"
+      }
+    },
+    {
+      "name": "case02_q17_boundary_taps",
+      "params": {
+        "frac_bits": 7,
+        "acc_bits": 16,
+        "coeff_bits": 8
+      },
+      "x_input": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "x_preprocessed_u8": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "h_real": [
+        -1.0,
+        0.9921875
+      ],
+      "h_quantized_s8": [
+        -128,
+        127
+      ],
+      "y_output_u8": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "files": {
+        "x_mem": "case02_q17_boundary_taps_x_u8.mem",
+        "h_mem": "case02_q17_boundary_taps_h_s8.mem",
+        "y_mem": "case02_q17_boundary_taps_y_u8.mem"
+      }
+    },
+    {
+      "name": "case03_general_nominal",
+      "params": {
+        "frac_bits": 7,
+        "acc_bits": 16,
+        "coeff_bits": 8
+      },
+      "x_input": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "x_preprocessed_u8": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "h_real": [
+        0.1,
+        0.5,
+        0.3,
+        0.1
+      ],
+      "h_quantized_s8": [
+        13,
+        64,
+        38,
+        13
+      ],
+      "y_output_u8": [
+        1,
+        7,
+        16,
+        26,
+        36,
+        46
+      ],
+      "files": {
+        "x_mem": "case03_general_nominal_x_u8.mem",
+        "h_mem": "case03_general_nominal_h_s8.mem",
+        "y_mem": "case03_general_nominal_y_u8.mem"
+      }
+    }
+  ]
+}
