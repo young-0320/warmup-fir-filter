@@ -11,7 +11,6 @@ import numpy as np
 def fir_1d_fixed_golden(
     x,           
     h,
-    data_bits: int = 8,     
     frac_bits: int = 7,     
     acc_bits: int = 16,
     coeff_bits: int = 8,     
@@ -22,7 +21,6 @@ def fir_1d_fixed_golden(
     Args:
         x: Grayscale 이미지 입력 픽셀 리스트 (0 ~ 255) 범위의 int
         h: 실수형 필터 계수 값 
-        data_bits: 입력 데이터 비트 폭 (기본 8)
         frac_bits: 계수 양자화를 위한 소수점 비트 (기본 7)
         acc_bits: 누산기 비트 폭 (기본 16)
         coeff_bits: 계수 비트 폭 (기본 8)
@@ -44,7 +42,7 @@ def fir_1d_fixed_golden(
         )
     dtype = dtype_int_map[coeff_bits]
     # 1. Parameter Calculation (하드웨어 제약사항)
-    MAX_PIXEL = (1 << data_bits) - 1  # 255가 MAX default
+    MAX_PIXEL = 255
     MIN_PIXEL = 0
     MIN_COEFF = -(1 << (coeff_bits - 1))      # -128
     MAX_COEFF = (1 << (coeff_bits - 1)) - 1   # 127
@@ -53,6 +51,8 @@ def fir_1d_fixed_golden(
     MAX_COEFF_REAL = MAX_COEFF / SCALE        # 127/128 = 0.9921875
 
     # 2. 필터 계수 데이터 무결성 확인
+    if len(h) == 0:
+        raise ValueError("Invalid h: h coefficients must not be empty.")
     for i, num in enumerate(h):
         if not np.isfinite(num):
             raise ValueError(
@@ -64,19 +64,25 @@ def fir_1d_fixed_golden(
                 f"[{MIN_COEFF_REAL}, {MAX_COEFF_REAL}] "
                 f"(coeff_bits={coeff_bits}, frac_bits={frac_bits})"
             )
-    # 3. 입력 x 데이터 무결성 확인 + saturation(0 ~ 255)
-    x_sat = []
+    # 3. 입력 x 데이터 무결성 확인 (uint8 고정)
+    x_u8 = []
     for i, sample in enumerate(x):
         if not np.isfinite(sample):
             raise ValueError(
                 f"x[{i}]={sample} must be finite (no NaN/Inf)."
             )
-        x_sat.append(
-            MIN_PIXEL if sample < MIN_PIXEL else MAX_PIXEL if sample > MAX_PIXEL else sample
-        )
+        if sample < MIN_PIXEL or sample > MAX_PIXEL:
+            raise ValueError(
+                f"x[{i}]={sample} out of uint8 range [{MIN_PIXEL}, {MAX_PIXEL}]."
+            )
+        if int(sample) != sample:
+            raise ValueError(
+                f"x[{i}]={sample} must be an integer uint8 sample."
+            )
+        x_u8.append(int(sample))
 
     # 4. 입력/계수를 내부 연산용 배열로 변환
-    x = np.array(x_sat, dtype=np.uint8)
+    x = np.array(x_u8, dtype=np.uint8)
     h = np.array(h, dtype=np.float64)
 
     # 5. h 실수 원소 -> 고정소수점 정수 변환(계수 먼저 양자화)
