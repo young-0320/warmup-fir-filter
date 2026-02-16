@@ -64,15 +64,16 @@ def fir_1d_fixed_golden(
                 f"[{MIN_COEFF_REAL}, {MAX_COEFF_REAL}] "
                 f"(coeff_bits={coeff_bits}, frac_bits={frac_bits})"
             )
-    # 3. 입력 x 데이터 무결성 확인 + saturation(0 ~ 255)
+    # 3. 입력 x 데이터 무결성 확인 + bankers rounding + saturation(0 ~ 255)
     x_sat = []
     for i, sample in enumerate(x):
         if not np.isfinite(sample):
             raise ValueError(
                 f"x[{i}]={sample} must be finite (no NaN/Inf)."
             )
+        rounded = int(np.rint(sample))
         x_sat.append(
-            MIN_PIXEL if sample < MIN_PIXEL else MAX_PIXEL if sample > MAX_PIXEL else sample
+            MIN_PIXEL if rounded < MIN_PIXEL else MAX_PIXEL if rounded > MAX_PIXEL else rounded
         )
 
     # 4. 입력/계수를 내부 연산용 배열로 변환

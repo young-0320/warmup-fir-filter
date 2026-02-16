@@ -60,7 +60,8 @@
 #### A. 입력 데이터
 
 - 입력 `x[i]`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
-- 입력 `x[i]`는 연산 전 `[0, 255]` 범위로 saturation(clamp)한다.
+- 입력 `x[i]`는 먼저 뱅커스 라운딩(round-to-nearest-even, `np.rint`)을 적용한다.
+- 라운딩된 값을 `[0, 255]` 범위로 saturation(clamp)한다.
 - 비유한 입력(`NaN`, `+Inf`, `-Inf`)은 `ValueError`를 발생시킨다.
 - 내부 저장은 `np.uint8` 배열로 변환한다.
 - 출력 saturation 범위는 `[0, 255]`를 사용한다.
