@@ -3,16 +3,20 @@ import math
 # FIR  Filter 1D Idel Model
 # 64bits 부동소수점 : 부호(1) + 지수(11) + 가수(52)
 MAX_ABS_H_COEFF = 1e6
-# TODO: 부동소수점의 너무 작은 값 0으로 클리핑하는 로직 추가
+
 # 필터 계수 입력 예외 처리
 def _validate_h_coefficients(h: list[float]) -> None:
+    # 빈 필터 계수
+    if len(h) == 0:
+        raise ValueError("Invalid h: h coefficients must not be empty.")
+
     for index, coeff in enumerate(h):
-        # 무한대 입력
+        # 무한대 계수
         if not math.isfinite(coeff):
             raise ValueError(
                 f"Invalid h[{index}]={coeff}: h coefficients must be finite."
             )
-        # 매우 큰 값 입력
+        # 매우 큰 계수
         if abs(coeff) > MAX_ABS_H_COEFF:
             raise ValueError(
                 f"Invalid h[{index}]={coeff}: |h| must be <= {MAX_ABS_H_COEFF}."

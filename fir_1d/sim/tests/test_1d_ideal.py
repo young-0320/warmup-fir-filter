@@ -84,3 +84,11 @@ def test_overly_large_h_coeff_raises_value_error():
 
     with pytest.raises(ValueError, match=r"\|h\| must be <="):
         fir_1d_ideal(x, h)
+
+
+def test_empty_h_coeff_raises_value_error():
+    x = [1, 2, 3]
+    h = []
+
+    with pytest.raises(ValueError, match="must not be empty"):
+        fir_1d_ideal(x, h)
