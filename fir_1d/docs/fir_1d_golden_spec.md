@@ -27,7 +27,16 @@
 - 출력 길이: `N + L - 1` (`N=len(x)`, `L=len(h)`).
 - 경계 처리: Zero-padding (`x` 범위 밖 인덱스는 0으로 처리).
 - 연산: `y[n] = sum(h[k] * x[n-k])`.
-- 본 모델은 saturation/wrap 같은 하드웨어 제약을 적용하지 않는다.
+- 입력 `x`는 연산 전 8-bit unsigned 범위 `[0, 255]`로 saturation(clamp)한다.
+- 출력 `y`는 floating-point 값을 유지하며 별도 saturation/wrap을 적용하지 않는다.
+
+### 2.3 계수(`h`) 유효성 정책
+
+- `h`는 빈 리스트를 허용하지 않는다. (`h=[]`이면 `ValueError`)
+- 모든 `h[i]`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
+- 모든 `h[i]`는 `|h[i]| <= 1e6`을 만족해야 한다.
+- TODO: 현재 `1e6`은 임시 값이며, 추후 Fixed 모델 계수 허용 실수 범위(`MIN_COEFF_REAL ~ MAX_COEFF_REAL`) 기준으로 변경한다.
+- 위 조건 위반 시 `fir_1d_ideal`은 `ValueError`를 발생시킨다.
 
 ---
 
