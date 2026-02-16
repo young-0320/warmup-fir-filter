@@ -64,25 +64,19 @@ def fir_1d_fixed_golden(
                 f"[{MIN_COEFF_REAL}, {MAX_COEFF_REAL}] "
                 f"(coeff_bits={coeff_bits}, frac_bits={frac_bits})"
             )
-    # 3. 입력 x 데이터 무결성 확인 (uint8 고정)
-    x_u8 = []
+    # 3. 입력 x 데이터 무결성 확인 + saturation(0 ~ 255)
+    x_sat = []
     for i, sample in enumerate(x):
         if not np.isfinite(sample):
             raise ValueError(
                 f"x[{i}]={sample} must be finite (no NaN/Inf)."
             )
-        if sample < MIN_PIXEL or sample > MAX_PIXEL:
-            raise ValueError(
-                f"x[{i}]={sample} out of uint8 range [{MIN_PIXEL}, {MAX_PIXEL}]."
-            )
-        if int(sample) != sample:
-            raise ValueError(
-                f"x[{i}]={sample} must be an integer uint8 sample."
-            )
-        x_u8.append(int(sample))
+        x_sat.append(
+            MIN_PIXEL if sample < MIN_PIXEL else MAX_PIXEL if sample > MAX_PIXEL else sample
+        )
 
     # 4. 입력/계수를 내부 연산용 배열로 변환
-    x = np.array(x_u8, dtype=np.uint8)
+    x = np.array(x_sat, dtype=np.uint8)
     h = np.array(h, dtype=np.float64)
 
     # 5. h 실수 원소 -> 고정소수점 정수 변환(계수 먼저 양자화)

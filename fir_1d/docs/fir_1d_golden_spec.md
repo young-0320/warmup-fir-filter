@@ -49,7 +49,6 @@
 - `x: list[int|float]` (입력 샘플)
 - `h: list[float]` (실수 계수, 내부에서 고정소수점 정수로 양자화)
 - 파라미터:
-- `data_bits: int = 8`
 - `frac_bits: int = 7`
 - `acc_bits: int = 16`
 - `coeff_bits: int = 8`
@@ -61,13 +60,15 @@
 #### A. 입력 데이터
 
 - 입력 `x[i]`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
-- `x[i]`는 연산 전 `[0, (1 << data_bits) - 1]` 범위로 saturation(clamp)한다.
-- saturation 후 내부 저장은 `np.uint8` 배열로 변환한다.
-- 출력 saturation 범위도 `[0, (1 << data_bits) - 1]`를 사용한다.
+- 입력 `x[i]`는 연산 전 `[0, 255]` 범위로 saturation(clamp)한다.
+- 비유한 입력(`NaN`, `+Inf`, `-Inf`)은 `ValueError`를 발생시킨다.
+- 내부 저장은 `np.uint8` 배열로 변환한다.
+- 출력 saturation 범위는 `[0, 255]`를 사용한다.
 
 #### B. 계수 무결성 체크 (실수 입력 범위)
 
 - `coeff_bits`는 `{8, 16, 32, 64}`만 허용한다. 그 외 값은 `ValueError`.
+- `h`는 빈 리스트를 허용하지 않는다. (`h=[]`이면 `ValueError`)
 - 계수 정수 범위:
 - `MIN_COEFF = -(1 << (coeff_bits - 1))`
 - `MAX_COEFF = (1 << (coeff_bits - 1)) - 1`
@@ -97,6 +98,5 @@
 #### E. 출력 보정
 
 1. Re-scaling: `final_val = acc >> frac_bits`
-2. Saturation: `[0, (1 << data_bits) - 1]`로 클램프
+2. Saturation: `[0, 255]`로 클램프
 3. 반환 타입: `np.ndarray` (`dtype=np.uint8`)
-4. 구현 제약: 최종 반환 dtype이 `uint8`이므로 bit-true 기준 권장 설정은 `data_bits=8`이다.
