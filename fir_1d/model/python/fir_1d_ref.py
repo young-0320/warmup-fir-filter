@@ -23,26 +23,33 @@ def _validate_h_coefficients(h: list[float]) -> None:
             )
 
 
-def fir_1d_ideal(x : list[int], h : list[float])->list:
+def fir_1d_ideal(x : list[int], h : list[float])->list[int]:
     _validate_h_coefficients(h)
 
     # 입력 x를 8-bit unsigned 범위(0~255)로 saturation
-    x_sat = [0 if sample < 0 else 255 if sample > 255 else sample for sample in x]
-
-    N = len(x_sat)  # 입력 x의 길이
+    x_sat = [max(0, min(255, sample)) for sample in x]
+    N = len(x_sat)
     L = len(h)      # 필터 h의 길이
-    # M = L - 1     # 차수
-    Ny = N + L - 1  # 출력 신호 길이 
+ 
+    center = L//2  
 
-    y = [0.0] * Ny
+    y = [0] * N
 
-    for n in range(Ny):
-        result = 0.0
+    for n in range(N):
+        acc = 0.0 # Accumulator
         for k in range(L):
+            input_idx = n + (k - center)
             # 인덱스 경계 검사: x[n-k]가 유효한 범위인지 확인
-            if 0 <= n - k < N:
-                result += h[k] * x_sat[n - k]
-        y[n] = result
+            if 0 <= input_idx < N:
+                pixel_val = x_sat[input_idx] # 유효 범위
+            else:
+                pixel_val = 0 
+
+            acc += h[k] * pixel_val
+
+        # 3. 출력 Saturation (하드웨어 출력 단)
+        # 반올림 후 0~255 범위로 자름 (Clamping)
+        y_val = int(round(acc))
+        y[n] = max(0, min(255, y_val))
         
     return y
-        
