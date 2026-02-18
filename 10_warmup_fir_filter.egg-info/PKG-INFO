@@ -7,4 +7,5 @@ Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: numpy>=2.4.2
 Requires-Dist: pytest>=9.0.2
+Requires-Dist: scipy>=1.17.0
 Dynamic: license-file

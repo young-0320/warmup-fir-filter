@@ -2,7 +2,7 @@
 # 64bits 부동소수점 : 부호(1) + 지수(11) + 가수(52)
 import math
 
-MAX_ABS_H_COEFF = 1e6
+MAX_ABS_H_COEFF = 16.0
 
 # 필터 계수 입력 예외 처리
 def _validate_h_coefficients(h: list[float]) -> None:

@@ -37,36 +37,37 @@
 
 * **비트 폭 제약:** `coeff_bits`는 `{8, 16, 32}`만 허용하여 메모리 정렬 최적화.
 * **동적 범위(Dynamic Range) 검사:**
-  * 실수 계수 `h`가 Q4.12 표현 범위를 초과할 경우 `ValueError` 발생.
-  * *준수 범위:* **$-8.0 \le h < 7.9375$** (Signed 16-bit 기준).
+  * `h`는 빈 리스트를 허용하지 않는다.
+  * 모든 `x, h`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
+  * 모든  `h[i]`는 Q4.12 표현 가능 범위 내에 있어야 한다.
+  * *준수 범위:* **$-8.0 \le h < 7.99975$** (Signed 16-bit 기준).
+  * 위 조건 위반 시 `ValueError`를 발생시킨다.
 
 #### C. 계수 양자화 (Quantization)
 
 * **변환식:** **$H_{fixed} = \text{round}(h \times 2^{\text{frac\_bits}})$**
 * **타입:** `int16` (계수 가변형 레지스터 인터페이스 대응).
 
-#### E. 출력 보정 (Post-processing)
-
-#### D. MAC 연산 및 인덱싱 (상세화)
+#### D. MAC 연산 및 인덱싱
 
 * **Convolution Mode:** **Same Mode (Center Aligned)**
 
   * **정의:** 출력 이미지의 위상(Phase)이 입력과 정확히 일치하도록(Zero-phase), 필터 커널의 중심을 현재 픽셀에 정렬한다.
-  * **Offset 설정:** **$\text{offset} = \text{floor}(L / 2)$** (예: 3탭 **$\rightarrow$** 1, 9탭 **$\rightarrow$** 4).
+  * **Offset 설정:** **$\text{center} = \text{floor}(L / 2)$** (예: 3탭 **$\rightarrow$** 1, 9탭 **$\rightarrow$** 4).
   * **인덱싱 수식:**
     $$
-    y[n] = \sum_{k=0}^{L-1} h_{fixed}[k] \times x_{pad}[n - k + \text{offset}]
+    y[n] = \sum_{k=0}^{L-1} h_{fixed}[k] \times x_{pad}[n - k + \text{center}]
     $$
-  * **동작 설명:** 위 수식은 논리적으로 **미래의 데이터(**$n+\text{offset}$**)**를 참조하는 구조임. 이는 하드웨어 구현 시 **라인 버퍼(Line Buffer)를 통한 지연(Latency)**으로 매핑됨.
-* **경계 처리 (Padding):** Zero-padding (초기 버전) 혹은 Replication Padding 지원.
+  * **동작 설명:** 위 수식은 논리적으로 **미래의 데이터(**$n+\text{center}$**)**를 참조하는 구조임. 이는 하드웨어 구현 시 **라인 버퍼(Line Buffer)를 통한 지연(Latency)**으로 매핑됨.
+* **경계 처리 (Padding):** Zero-padding
 * **누산기 (Accumulator):**
-* **동작:** 매 단계마다 `acc = (acc + term) & mask` (Wrap-around 모사).
 
-  * **부호 복원:** 최종 누산 후 MSB 확인을 통한 2의 보수 부호화 수행.
+  * **MAC 동작:** 매 단계마다 `acc = (acc + term) & mask` (Overflow 발생 시 비트 절삭을 통한 Wrap-around 모사).
+  * **부호 복원:** 마스킹 후 Unsigned(양수)로 변환된 값을, 최상위 비트(MSB) 검사를 통해 **Signed(음수 포함) 2의 보수 형태**로 재해석(Re-interpretation). (추후 Shift 연산 시 부호 비트 유지 위함)
 
 #### E. 출력 보정 (Post-processing)
 
-1. **Rounding (반올림):**
+1. **Rounding (반올림 구현):**
 
    * **Bias Addition:** `acc = acc + (1 << (frac_bits - 1))` (시프트 전 0.5 값 가산).
 2. **Re-scaling:**
@@ -112,7 +113,6 @@
 | **Q3.13**         | **$-4.0 \sim +3.99$** | High                                      | **불가능 (Overflow)** | 좋음               | **기각**               |
 | **Q4.12**         | **$-8.0 \sim +7.99$** | **Optimal (**$0.00024$**)** | **가능 (Safe)**       | **최적**     | **채택 (Standard)**    |
 | **Q8.8**          | **$-128 \sim +127$**  | Low (**$0.0039$**)                | 가능                        | 좋음               | **보류 (정밀도 부족)** |
-
 
 #### **B. 아키텍처 선정: Center Alignment & Same Mode (신설)**
 
