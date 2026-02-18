@@ -1,7 +1,7 @@
-import math
-
 # FIR  Filter 1D Idel Model
 # 64bits 부동소수점 : 부호(1) + 지수(11) + 가수(52)
+import math
+
 MAX_ABS_H_COEFF = 1e6
 
 # 필터 계수 입력 예외 처리
@@ -23,33 +23,33 @@ def _validate_h_coefficients(h: list[float]) -> None:
             )
 
 
-def fir_1d_ideal(x : list[int], h : list[float])->list[int]:
+def _validate_and_clamp_x(x: list[float]) -> list[float]:
+    x_sat: list[float] = []
+    for index, sample in enumerate(x):
+        if not math.isfinite(sample):
+            raise ValueError(f"Invalid x[{index}]={sample}: x must be finite.")
+        x_sat.append(max(0.0, min(255.0, float(sample))))
+    return x_sat
+
+
+def fir_1d_ideal(x: list[float], h: list[float]) -> list[float]:
     _validate_h_coefficients(h)
+    x_sat = _validate_and_clamp_x(x)
 
-    # 입력 x를 8-bit unsigned 범위(0~255)로 saturation
-    x_sat = [max(0, min(255, sample)) for sample in x]
     N = len(x_sat)
-    L = len(h)      # 필터 h의 길이
- 
-    center = L//2  
+    L = len(h)  # 필터 h의 길이
+    center = L // 2
 
-    y = [0] * N
+    y: list[float] = [0.0] * N
 
     for n in range(N):
-        acc = 0.0 # Accumulator
+        acc = 0.0  # Accumulator 
         for k in range(L):
-            input_idx = n + (k - center)
-            # 인덱스 경계 검사: x[n-k]가 유효한 범위인지 확인
+            input_idx = n - k + center
             if 0 <= input_idx < N:
-                pixel_val = x_sat[input_idx] # 유효 범위
-            else:
-                pixel_val = 0 
+                acc += h[k] * x_sat[input_idx]
 
-            acc += h[k] * pixel_val
+        # Ideal spec: output is pass-through float (no clamp)
+        y[n] = acc
 
-        # 3. 출력 Saturation (하드웨어 출력 단)
-        # 반올림 후 0~255 범위로 자름 (Clamping)
-        y_val = int(round(acc))
-        y[n] = max(0, min(255, y_val))
-        
     return y
