@@ -94,6 +94,13 @@ env/
 **/sim/data/
 **/sim/work/
 
+# FIR 1D vector generation outputs (keep generator scripts tracked)
+fir_1d/sim/vector/input_x_json/
+fir_1d/sim/vector/*.npy
+fir_1d/sim/vector/*_preview.json
+fir_1d/sim/vector/input_vector_manifest.json
+fir_1d/sim/vector/fir_1d_h_coeff_bank.json
+
 # 문서 자산 
 **/docs/assets/
 
