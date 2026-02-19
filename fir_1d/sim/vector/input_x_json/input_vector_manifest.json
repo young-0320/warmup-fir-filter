@@ -1,0 +1,71 @@
+{
+  "note": "FIR 1D input vectors: pixel data in .npy, small previews in .json.",
+  "source_image_dir": "/home/young/dev/10_warmup-fir-filter/fir_1d/sim/img",
+  "output_dir": "/home/young/dev/10_warmup-fir-filter/fir_1d/sim/vector/input_x_json",
+  "num_images": 7,
+  "cases": [
+    {
+      "case_name": "case_000_img_001_1280x853_gray",
+      "image_name": "img_001_1280x853_gray.jpg",
+      "width": 1280,
+      "height": 853,
+      "dtype": "uint8",
+      "data_npy": "case_000_img_001_1280x853_gray_x_u8.npy",
+      "preview_json": "case_000_img_001_1280x853_gray_preview.json"
+    },
+    {
+      "case_name": "case_001_img_002_640x762_gray",
+      "image_name": "img_002_640x762_gray.jpg",
+      "width": 640,
+      "height": 762,
+      "dtype": "uint8",
+      "data_npy": "case_001_img_002_640x762_gray_x_u8.npy",
+      "preview_json": "case_001_img_002_640x762_gray_preview.json"
+    },
+    {
+      "case_name": "case_002_img_003_1280x854_gray",
+      "image_name": "img_003_1280x854_gray.jpg",
+      "width": 1280,
+      "height": 854,
+      "dtype": "uint8",
+      "data_npy": "case_002_img_003_1280x854_gray_x_u8.npy",
+      "preview_json": "case_002_img_003_1280x854_gray_preview.json"
+    },
+    {
+      "case_name": "case_003_img_004_64x64_gray",
+      "image_name": "img_004_64x64_gray.bmp",
+      "width": 64,
+      "height": 64,
+      "dtype": "uint8",
+      "data_npy": "case_003_img_004_64x64_gray_x_u8.npy",
+      "preview_json": "case_003_img_004_64x64_gray_preview.json"
+    },
+    {
+      "case_name": "case_004_img_005_64x64_noise_gray",
+      "image_name": "img_005_64x64_noise_gray.bmp",
+      "width": 64,
+      "height": 64,
+      "dtype": "uint8",
+      "data_npy": "case_004_img_005_64x64_noise_gray_x_u8.npy",
+      "preview_json": "case_004_img_005_64x64_noise_gray_preview.json"
+    },
+    {
+      "case_name": "case_005_img_006_4499x2999_gray",
+      "image_name": "img_006_4499x2999_gray.jpg",
+      "width": 4499,
+      "height": 2999,
+      "dtype": "uint8",
+      "data_npy": "case_005_img_006_4499x2999_gray_x_u8.npy",
+      "preview_json": "case_005_img_006_4499x2999_gray_preview.json"
+    },
+    {
+      "case_name": "case_006_img_007_1280x641_gray",
+      "image_name": "img_007_1280x641_gray.jpg",
+      "width": 1280,
+      "height": 641,
+      "dtype": "uint8",
+      "data_npy": "case_006_img_007_1280x641_gray_x_u8.npy",
+      "preview_json": "case_006_img_007_1280x641_gray_preview.json"
+    }
+  ]
+}
