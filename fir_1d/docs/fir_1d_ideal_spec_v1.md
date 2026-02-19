@@ -16,7 +16,7 @@
 
 * **함수명:** `fir_1d_ideal`
 * **입력:**
-  * `x: list[float]` (입력 데이터)
+  * `x: list[int|float]` (입력 데이터)
   * `h: list[float]` (필터 계수)
 * **출력:**
   * `y: list[float]` (필터링 결과)
@@ -36,8 +36,11 @@
     *(단, 인덱스 $n-k+\text{center}$가 **$0 \sim N-1$** 범위를 벗어나면 0으로 처리)*
 * **경계 처리 (Padding):** Zero-padding.
 * **데이터 정밀도:** Python `float` (64-bit Double Precision) 연산 수행.
-* **Saturation 정책:**
-  * **Input:** `[0, 255]` 범위로 Clamp (유효 이미지 데이터 확인).
+* **입력 전처리 정책 (Input Preprocessing):**
+  * 모든 `x`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
+  * **Rounding:** `round-half-up` 적용 (`floor(x + 0.5)`).
+  * **Clamp:** 반올림 결과를 `[0, 255]` 범위로 Saturation.
+* **출력 정책:**
   * **Output:** **Pass-through (No Clamp).**
     * *목적:* 필터링 후 발생하는 Overshoot/Undershoot(예: -150, +765) 값을 날것(Raw) 그대로 관찰하여, Golden Model의 `acc_bits` 및 `output_stage` 설계를 위한 근거 데이터로 활용함.
 

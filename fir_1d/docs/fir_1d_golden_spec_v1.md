@@ -25,6 +25,12 @@
 
 ### 2.2 데이터 경로 및 제약
 
+#### A-0. 파라미터 유효성
+
+* `frac_bits > 0` 이어야 하며, 위반 시 `ValueError`.
+* `acc_bits > 0` 이어야 하며, 위반 시 `ValueError`.
+* `coeff_bits`는 `{8, 16, 32}` 중 하나여야 하며, 위반 시 `ValueError`.
+
 #### A. 입력 데이터 전처리
 
 * **유효성 검사:** `NaN`,`+Inf`,`-Inf`입력 시 `ValueError` 발생.
@@ -39,14 +45,20 @@
 * **동적 범위(Dynamic Range) 검사:**
   * `h`는 빈 리스트를 허용하지 않는다.
   * 모든 `x, h`는 유한 실수여야 한다. (`NaN`, `+Inf`, `-Inf` 금지)
-  * 모든  `h[i]`는 Q4.12 표현 가능 범위 내에 있어야 한다.
-  * *준수 범위:* **$-8.0 \le h < 7.99975$** (Signed 16-bit 기준).
+  * 모든 `h[i]`는 `|h[i]| <= 8.0`을 만족해야 한다. (입력 계약 검증)
+  * 모든 `h[i]`는 현재 설정된 Q-format 실수 표현 범위를 만족해야 한다.
+  * *준수 범위(일반식):*  
+    `MIN_COEFF_REAL = -(2^(coeff_bits-1)) / 2^frac_bits`  
+    `MAX_COEFF_REAL = (2^(coeff_bits-1)-1) / 2^frac_bits`  
+    `MIN_COEFF_REAL <= h[i] <= MAX_COEFF_REAL`
+  * *기본값(Q4.12, coeff_bits=16, frac_bits=12):* **`-8.0 <= h <= 7.999755859375`**
   * 위 조건 위반 시 `ValueError`를 발생시킨다.
 
 #### C. 계수 양자화 (Quantization)
 
-* **변환식:** **$H_{fixed} = \text{round}(h \times 2^{\text{frac\_bits}})$**
-* **타입:** `int16` (계수 가변형 레지스터 인터페이스 대응).
+* **변환식:** `H_fixed = np.rint(h * 2^frac_bits)` (ties-to-even)
+* **범위 보정:** `np.clip(H_fixed, MIN_COEFF, MAX_COEFF)` 수행
+* **타입:** `coeff_bits`에 따라 `{int8, int16, int32}`로 캐스팅
 
 #### D. MAC 연산 및 인덱싱
 
@@ -62,8 +74,8 @@
 * **경계 처리 (Padding):** Zero-padding
 * **누산기 (Accumulator):**
 
-  * **MAC 동작:** 매 단계마다 `acc = (acc + term) & mask` (Overflow 발생 시 비트 절삭을 통한 Wrap-around 모사).
-  * **부호 복원:** 마스킹 후 Unsigned(양수)로 변환된 값을, 최상위 비트(MSB) 검사를 통해 **Signed(음수 포함) 2의 보수 형태**로 재해석(Re-interpretation). (추후 Shift 연산 시 부호 비트 유지 위함)
+  * **MAC 동작(구현 기준):** 내부 루프에서 `acc += term`로 누산 후, 출력 샘플 단위로 1회 `acc = acc & mask`를 적용한다.
+  * **부호 복원:** 마스킹 후 Unsigned 값을 최상위 비트(MSB) 검사로 Signed 2의 보수로 재해석한다. (추후 Shift 시 부호 유지)
 
 #### E. 출력 보정 (Post-processing)
 
@@ -114,7 +126,7 @@
 | **Q4.12**         | **$-8.0 \sim +7.99$** | **Optimal (**$0.00024$**)** | **가능 (Safe)**       | **최적**     | **채택 (Standard)**    |
 | **Q8.8**          | **$-128 \sim +127$**  | Low (**$0.0039$**)                | 가능                        | 좋음               | **보류 (정밀도 부족)** |
 
-#### **B. 아키텍처 선정: Center Alignment & Same Mode (신설)**
+#### **B. 아키텍처 선정: Center Alignment & Same Mode** 
 
 **1. 위상 정합성 (Phase Consistency) 확보**
 
