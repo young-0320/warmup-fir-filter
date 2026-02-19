@@ -95,7 +95,9 @@ env/
 **/sim/work/
 
 # FIR 1D vector generation outputs (keep generator scripts tracked)
-fir_1d/sim/vector/input_x_json/
+fir_1d/sim/vector/input/
+fir_1d/sim/vector/output/
+fir_1d/sim/vector/output_test_small/
 fir_1d/sim/vector/*.npy
 fir_1d/sim/vector/*_preview.json
 fir_1d/sim/vector/input_vector_manifest.json

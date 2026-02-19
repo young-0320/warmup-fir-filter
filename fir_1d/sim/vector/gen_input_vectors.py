@@ -8,7 +8,7 @@ import numpy as np
 
 THIS_FILE = Path(__file__).resolve()
 DEFAULT_IMAGE_DIR = THIS_FILE.parent.parent / "img"
-DEFAULT_OUTPUT_DIR = THIS_FILE.parent / "input_x_json"
+DEFAULT_OUTPUT_DIR = THIS_FILE.parent / "input"
 SUPPORTED_EXTS = {".bmp", ".png", ".jpg", ".jpeg"}
 
 
