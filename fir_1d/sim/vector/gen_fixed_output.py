@@ -1,3 +1,5 @@
+# File: gen_fixed_output.py
+# Role: 입력 이미지와 계수 맵을 사용해 fixed FIR 출력 벡터(.npy)를 생성한다.
 from __future__ import annotations
 
 from pathlib import Path

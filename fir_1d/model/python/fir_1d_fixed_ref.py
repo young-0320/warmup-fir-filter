@@ -1,8 +1,5 @@
-# FIR  Filter 1D Fixed Golden Model_v1
-
-# 기본 설정은 Q4.12 (coeff_bits=16, frac_bits=12)
-# TODO : 내부 오버플로우 방어 로직
-# TODO : 포멧 변경 인터페이스
+# File: fir_1d_fixed_ref.py
+# Role: 고정소수점(Q-format) 기준 1D FIR golden 모델을 제공한다.
 import numpy as np
 import numpy.typing as npt
 import math

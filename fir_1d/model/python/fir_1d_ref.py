@@ -1,5 +1,5 @@
-# FIR  Filter 1D Idel Model
-# 64bits 부동소수점 : 부호(1) + 지수(11) + 가수(52)
+# File: fir_1d_ref.py
+# Role: 1D FIR 이상(부동소수점) 참조 모델과 입력/계수 검증 로직을 제공한다.
 import math
 from collections.abc import Sequence
 

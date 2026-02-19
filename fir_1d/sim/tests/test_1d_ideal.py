@@ -1,3 +1,5 @@
+# File: test_1d_ideal.py
+# Role: fir_1d_ideal의 동작, 전처리 규칙, 예외 정책을 단위 테스트한다.
 import pytest
 
 from fir_1d.model.python.fir_1d_ref import MAX_ABS_H_COEFF, fir_1d_ideal

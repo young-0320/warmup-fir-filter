@@ -1,4 +1,5 @@
-# define coefficient of h
+# File: h_coeff.py
+# Role: 3탭/5탭 FIR 검증에 사용하는 테스트 계수 맵을 정의한다.
 h_coeff_3tap_map ={
     "moving_avg" : [1/3, 1/3, 1/3],
     "simple_lp" : [0.25, 0.5, 0.25],

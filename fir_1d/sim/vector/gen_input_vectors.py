@@ -1,3 +1,5 @@
+# File: gen_input_vectors.py
+# Role: 원본 이미지를 grayscale uint8 입력 벡터(.npy)와 매니페스트로 변환한다.
 from __future__ import annotations
 
 import json

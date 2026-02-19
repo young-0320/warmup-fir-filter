@@ -1,3 +1,5 @@
+# File: test_1d_fixed.py
+# Role: fir_1d_fixed_golden의 기능, 예외 처리, 출력 계약을 단위 테스트한다.
 import numpy as np
 import pytest
 

@@ -1,3 +1,5 @@
+# File: output_test_common.py
+# Role: output vector 테스트에서 공용으로 쓰는 입력 준비/검증 유틸리티를 제공한다.
 from __future__ import annotations
 
 from collections.abc import Callable

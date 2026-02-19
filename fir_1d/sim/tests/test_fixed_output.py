@@ -1,3 +1,5 @@
+# File: test_fixed_output.py
+# Role: fixed output vector 생성 스크립트의 파일 규약과 값 정합성을 검증한다.
 from __future__ import annotations
 
 from pathlib import Path
