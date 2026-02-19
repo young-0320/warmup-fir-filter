@@ -1,11 +1,12 @@
 # FIR  Filter 1D Idel Model
 # 64bits 부동소수점 : 부호(1) + 지수(11) + 가수(52)
 import math
+from collections.abc import Sequence
 
 MAX_ABS_H_COEFF = 8.0
 
 # 필터 계수 입력 예외 처리
-def _validate_h_coefficients(h: list[float]) -> None:
+def _validate_h_coefficients(h: Sequence[float]) -> None:
     # 빈 필터 계수
     if len(h) == 0:
         raise ValueError("Invalid h: h coefficients must not be empty.")
@@ -23,23 +24,23 @@ def _validate_h_coefficients(h: list[float]) -> None:
             )
 
 
-def _validate_x(x: list[int|float]) -> list[int|float]:
+def _validate_x(x: Sequence[int | float]) -> list[int | float]:
 
     for index, sample in enumerate(x):
         if not math.isfinite(sample):
             raise ValueError(f"Invalid x[{index}]={sample}: x must be finite.")
         
-    return x
+    return list(x)
 
-def _round_half_up_x(x) -> list[int]:
+def _round_half_up_x(x: Sequence[int | float]) -> list[int]:
 
     new_x = [math.floor(sample + 0.5) for sample in x ]
     return new_x
 
-def _clamp_x(x : list[int]) -> list[int]:  
+def _clamp_x(x: Sequence[int]) -> list[int]:
     return [max(0, min(255, s)) for s in x]
 
-def fir_1d_ideal(x: list[int|float], h: list[float]) -> list[float]:
+def fir_1d_ideal(x: Sequence[int | float], h: Sequence[float]) -> list[float]:
     _validate_h_coefficients(h)
     x_1= _validate_x(x)
     x_2= _round_half_up_x(x_1)
