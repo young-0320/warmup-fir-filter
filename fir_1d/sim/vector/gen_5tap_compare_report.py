@@ -1,5 +1,5 @@
-# File: gen_3tap_compare_report.py
-# Role: 3탭 기준 ideal/fixed 출력 벡터 비교 리포트 생성을 위한 모듈이다.
+# File: gen_5tap_compare_report.py
+# Role: 5탭 기준 ideal/fixed 출력 벡터 비교 리포트 생성을 위한 모듈이다.
 from __future__ import annotations
 
 import argparse
@@ -15,13 +15,13 @@ import numpy as np
 
 THIS_FILE = Path(__file__).resolve()
 DEFAULT_OUTPUT_DIR = THIS_FILE.parent / "output"
-DEFAULT_IDEAL_3TAP_DIR = DEFAULT_OUTPUT_DIR / "ideal_3tap"
-DEFAULT_FIXED_3TAP_DIR = DEFAULT_OUTPUT_DIR / "fixed_3tap"
-DEFAULT_REPORT_DIR = DEFAULT_OUTPUT_DIR / "report_3tap"
+DEFAULT_IDEAL_5TAP_DIR = DEFAULT_OUTPUT_DIR / "ideal_5tap"
+DEFAULT_FIXED_5TAP_DIR = DEFAULT_OUTPUT_DIR / "fixed_5tap"
+DEFAULT_REPORT_DIR = DEFAULT_OUTPUT_DIR / "report_5tap"
 
 # 파일 이름 검증 및 파싱
-IDEAL_NAME_RE = re.compile(r"^(?P<case_stem>.+?)__(?P<coeff_name>.+)_ideal_3tap_y_f64\.npy$")
-FIXED_NAME_RE = re.compile(r"^(?P<case_stem>.+?)__(?P<coeff_name>.+)_fixed_3tap_y_u8\.npy$")
+IDEAL_NAME_RE = re.compile(r"^(?P<case_stem>.+?)__(?P<coeff_name>.+)_ideal_5tap_y_f64\.npy$")
+FIXED_NAME_RE = re.compile(r"^(?P<case_stem>.+?)__(?P<coeff_name>.+)_fixed_5tap_y_u8\.npy$")
 
 PairKey = tuple[str, str]
 
@@ -216,7 +216,7 @@ def _print_console_summary(
     csv_path: Path,
     json_path: Path,
 ) -> None:
-    print("[3tap compare summary]")
+    print("[5tap compare summary]")
     print(f"- num_cases: {overall['num_cases']}")
     print(f"- num_samples_total: {overall['num_samples_total']}")
     print(f"- avg_mae: {overall['avg_mae']:.6f}")
@@ -246,10 +246,10 @@ def _print_console_summary(
     print(f"- json: {json_path}")
 
 
-def generate_3tap_compare_report(
+def generate_5tap_compare_report(
     *,
-    ideal_dir: Path = DEFAULT_IDEAL_3TAP_DIR,
-    fixed_dir: Path = DEFAULT_FIXED_3TAP_DIR,
+    ideal_dir: Path = DEFAULT_IDEAL_5TAP_DIR,
+    fixed_dir: Path = DEFAULT_FIXED_5TAP_DIR,
     report_dir: Path = DEFAULT_REPORT_DIR,
     top_k: int = 5,
     strict: bool = False,
@@ -276,7 +276,7 @@ def generate_3tap_compare_report(
 
     if not shared_keys:
         raise ValueError(
-            "No matched 3tap ideal/fixed pairs found. "
+            "No matched 5tap ideal/fixed pairs found. "
             f"ideal_dir={ideal_dir}, fixed_dir={fixed_dir}"
         )
 
@@ -353,8 +353,8 @@ def generate_3tap_compare_report(
             f"duplicate_fixed_keys={len(validation['duplicate_fixed_keys'])}"
         )
 
-    csv_path = report_dir / "compare_3tap_cases.csv"
-    json_path = report_dir / "compare_3tap_summary.json"
+    csv_path = report_dir / "compare_5tap_cases.csv"
+    json_path = report_dir / "compare_5tap_summary.json"
     _write_csv(csv_path, rows)
 
     summary_payload = {
@@ -394,19 +394,19 @@ def generate_3tap_compare_report(
 
 def _build_argparser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Generate 3tap ideal/fixed comparison report (CSV/JSON + console summary)."
+        description="Generate 5tap ideal/fixed comparison report (CSV/JSON + console summary)."
     )
     parser.add_argument(
         "--ideal-dir",
         type=Path,
-        default=DEFAULT_IDEAL_3TAP_DIR,
-        help=f"Directory containing ideal 3tap outputs (default: {DEFAULT_IDEAL_3TAP_DIR})",
+        default=DEFAULT_IDEAL_5TAP_DIR,
+        help=f"Directory containing ideal 5tap outputs (default: {DEFAULT_IDEAL_5TAP_DIR})",
     )
     parser.add_argument(
         "--fixed-dir",
         type=Path,
-        default=DEFAULT_FIXED_3TAP_DIR,
-        help=f"Directory containing fixed 3tap outputs (default: {DEFAULT_FIXED_3TAP_DIR})",
+        default=DEFAULT_FIXED_5TAP_DIR,
+        help=f"Directory containing fixed 5tap outputs (default: {DEFAULT_FIXED_5TAP_DIR})",
     )
     parser.add_argument(
         "--report-dir",
@@ -432,7 +432,7 @@ def main() -> None:
     parser = _build_argparser()
     args = parser.parse_args()
 
-    result = generate_3tap_compare_report(
+    result = generate_5tap_compare_report(
         ideal_dir=args.ideal_dir,
         fixed_dir=args.fixed_dir,
         report_dir=args.report_dir,
