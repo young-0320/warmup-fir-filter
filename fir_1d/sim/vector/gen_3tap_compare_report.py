@@ -8,6 +8,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 import numpy as np
@@ -444,20 +445,33 @@ def _build_argparser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = _build_argparser()
     args = parser.parse_args()
-
-    result = generate_3tap_compare_report(
-        ideal_dir=args.ideal_dir,
-        fixed_dir=args.fixed_dir,
-        report_dir=args.report_dir,
-        top_k=args.top_k,
-        strict=args.strict,
-    )
-    print(
-        "[done] "
-        f"num_cases={result['num_cases']}, "
-        f"num_samples_total={result['num_samples_total']}, "
-        f"validation_has_issue={result['validation_has_issue']}"
-    )
+    _t0 = perf_counter()
+    try:
+        result = generate_3tap_compare_report(
+            ideal_dir=args.ideal_dir,
+            fixed_dir=args.fixed_dir,
+            report_dir=args.report_dir,
+            top_k=args.top_k,
+            strict=args.strict,
+        )
+        _elapsed = perf_counter() - _t0
+        print(
+            "[OK] gen_3tap_compare_report "
+            "file=gen_3tap_compare_report.py "
+            f"generated={result['num_cases']} skipped=0 failed=0 "
+            f"elapsed={_elapsed:.2f}s out={result['csv_path']} "
+            f"validation_has_issue={result['validation_has_issue']}"
+        )
+    except Exception as exc:
+        _elapsed = perf_counter() - _t0
+        print(
+            "[FAIL] gen_3tap_compare_report "
+            "file=gen_3tap_compare_report.py "
+            f"generated=0 skipped=0 failed=1 "
+            f"elapsed={_elapsed:.2f}s out={args.report_dir.resolve()} "
+            f'error="{exc}"'
+        )
+        raise
 
 
 if __name__ == "__main__":

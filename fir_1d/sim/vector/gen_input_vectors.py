@@ -2,8 +2,10 @@
 # Role: 원본 이미지를 grayscale uint8 입력 벡터(.npy)와 매니페스트로 변환한다.
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
+from time import perf_counter
 
 import numpy as np
 
@@ -94,6 +96,8 @@ def _make_preview(gray_u8: np.ndarray, *, max_rows: int = 8, max_cols: int = 16)
 def generate_input_vector_jsons(
     image_dir: Path = DEFAULT_IMAGE_DIR,
     output_dir: Path = DEFAULT_OUTPUT_DIR,
+    *,
+    overwrite: bool = False,
 ) -> dict:
     """
     Generate per-image preview JSON and per-image NumPy .npy data files.
@@ -109,6 +113,8 @@ def generate_input_vector_jsons(
         raise FileNotFoundError(f"No image files found in: {image_dir}")
 
     cases: list[dict] = []
+    generated_cases = 0
+    skipped_cases = 0
     for idx, image_path in enumerate(image_files):
         gray_u8 = _load_image_gray_u8(image_path)
         h, w = gray_u8.shape
@@ -117,20 +123,25 @@ def generate_input_vector_jsons(
         data_file = output_dir / f"{case_name}_x_u8.npy"
         preview_file = output_dir / f"{case_name}_preview.json"
 
-        np.save(data_file, gray_u8)
+        # overwrite=False에서 기존 벡터/프리뷰가 모두 있으면 중복 생성하지 않는다.
+        if (data_file.exists() and preview_file.exists()) and not overwrite:
+            skipped_cases += 1
+        else:
+            np.save(data_file, gray_u8)
 
-        payload = {
-            "case_name": case_name,
-            "image_name": image_path.name,
-            "source_path": str(image_path),
-            "width": w,
-            "height": h,
-            "dtype": "uint8",
-            "layout": "row_major_2d",
-            "data_file": data_file.name,
-            **_make_preview(gray_u8),
-        }
-        _write_preview_json_compact_rows(preview_file, payload)
+            payload = {
+                "case_name": case_name,
+                "image_name": image_path.name,
+                "source_path": str(image_path),
+                "width": w,
+                "height": h,
+                "dtype": "uint8",
+                "layout": "row_major_2d",
+                "data_file": data_file.name,
+                **_make_preview(gray_u8),
+            }
+            _write_preview_json_compact_rows(preview_file, payload)
+            generated_cases += 1
 
         cases.append(
             {
@@ -149,12 +160,62 @@ def generate_input_vector_jsons(
         "source_image_dir": str(image_dir),
         "output_dir": str(output_dir),
         "num_images": len(cases),
+        "overwrite": bool(overwrite),
+        "generated_cases": generated_cases,
+        "skipped_cases": skipped_cases,
         "cases": cases,
     }
     _write_json(output_dir / "input_vector_manifest.json", manifest)
     return manifest
 
 
+def _build_argparser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Generate FIR 1D input vectors (.npy) and preview/manifest JSON files."
+    )
+    parser.add_argument(
+        "--image-dir",
+        type=Path,
+        default=DEFAULT_IMAGE_DIR,
+        help=f"Directory containing source images (default: {DEFAULT_IMAGE_DIR})",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=DEFAULT_OUTPUT_DIR,
+        help=f"Directory to write input vectors and manifest (default: {DEFAULT_OUTPUT_DIR})",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing case files instead of skipping duplicates.",
+    )
+    return parser
+
+
 if __name__ == "__main__":
-    m = generate_input_vector_jsons()
-    print(f"Generated {m['num_images']} input-vector JSON files in {m['output_dir']}")
+    _t0 = perf_counter()
+    try:
+        _args = _build_argparser().parse_args()
+        m = generate_input_vector_jsons(
+            image_dir=_args.image_dir,
+            output_dir=_args.output_dir,
+            overwrite=_args.overwrite,
+        )
+        _elapsed = perf_counter() - _t0
+        print(
+            "[OK] gen_input_vectors "
+            "file=gen_input_vectors.py "
+            f"generated={m['generated_cases']} skipped={m['skipped_cases']} failed=0 "
+            f"elapsed={_elapsed:.2f}s out={m['output_dir']}"
+        )
+    except Exception as exc:
+        _elapsed = perf_counter() - _t0
+        print(
+            "[FAIL] gen_input_vectors "
+            "file=gen_input_vectors.py "
+            f"generated=0 skipped=0 failed=1 "
+            f"elapsed={_elapsed:.2f}s out={DEFAULT_OUTPUT_DIR.resolve()} "
+            f'error="{exc}"'
+        )
+        raise
