@@ -64,6 +64,19 @@ def _collect_keyed_files(
 
 
 def _compute_metrics(y_ideal: np.ndarray, y_fixed: np.ndarray) -> dict[str, float | int]:
+    """
+    Compute per-case report metrics for one ideal/fixed output pair.
+
+    - `num_samples`: 비교 대상 전체 샘플(픽셀) 개수.
+    - `max_abs_err`: 픽셀별 `|fixed - ideal|`의 최댓값.
+    - `mae`: 픽셀별 `|fixed - ideal|`의 평균 오차.
+    - `rmse`: 픽셀별 `(fixed - ideal)^2` 평균의 제곱근 오차.
+    - `mean_err`: 픽셀별 `(fixed - ideal)`의 부호 포함 평균 오차(편향).
+    - `sat_low_ratio`: fixed 출력이 `0`으로 포화된 샘플 비율.
+    - `sat_high_ratio`: fixed 출력이 `255`로 포화된 샘플 비율.
+    - `sat_ratio`: fixed 출력이 `0` 또는 `255`인 전체 포화 비율.
+    - `clip_needed_ratio`: ideal 출력이 `[0, 255]`를 벗어나 clip이 필요한 비율.
+    """
     if y_ideal.shape != y_fixed.shape:
         raise ValueError(f"Shape mismatch: ideal={y_ideal.shape}, fixed={y_fixed.shape}")
 
